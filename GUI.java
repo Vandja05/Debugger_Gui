@@ -3,14 +3,6 @@ package gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.Scanner;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import vm252architecture.VM252Architecture;
-import static vm252architecture.VM252Architecture.numberOfMemoryBytes;
 import vm252utilities.VM252Utilities;
 
 /**
@@ -168,6 +160,20 @@ class ProgramFrame extends JFrame
       runAction run = new runAction();
       R.addActionListener(run);
       
+      helpAction help = new helpAction();
+      Help.addActionListener(help);
+      
+      oBAction oB = new oBAction();
+      ob.addActionListener(oB);
+      
+      odAction od = new odAction();
+      OD.addActionListener(od);
+      
+      amb_hAction ambh = new amb_hAction();
+      Amb_h.addActionListener(ambh);
+      
+      amb_sAction ambs = new amb_sAction();
+      Amb_s.addActionListener(ambs);
       program = VM252Utilities.readObjectCodeFromObjectFile(path.file_path());
       setUpProgram(program);
       outPutFrame();
@@ -230,6 +236,12 @@ class ProgramFrame extends JFrame
                 textArea.setText("");
             }
       }
+      public byte window(String question)
+        {
+            byte input;
+            input = Byte.valueOf(JOptionPane.showInputDialog(question));
+            return input;
+        }
       public int intInput(String question)
         {
             int input;
@@ -278,20 +290,20 @@ class ProgramFrame extends JFrame
                             switch (opcode)
                             {
                                 case VM252Utilities.INPUT_OPCODE-> {
-                                    textArea.append("INPUT");
+                                    textArea.append("INPUT\n");
                                 }
                                 case VM252Utilities.LOAD_OPCODE-> {
                                     textArea.append("LOAD ");
-                                    textArea.append(String.valueOf(operand));
+                                    textArea.append(String.valueOf(operand)+"\n");
                                 }
                                 case VM252Utilities.SET_OPCODE-> {
-                                    textArea.append("SET");
-                                    textArea.append(String.valueOf(operand));
+                                    textArea.append("SET ");
+                                    textArea.append(String.valueOf(operand)+"\n");
                                 }
                                 case VM252Utilities.STORE_OPCODE -> {
                                     //add the word next to it that it is beign stored to
-                                    textArea.append("STORE");
-                                    textArea.append(String.valueOf(operand));
+                                    textArea.append("STORE ");
+                                    textArea.append(String.valueOf(operand)+"\n");
                                 }
                                 case VM252Utilities.ADD_OPCODE-> {
                                     textArea.append("ADD");
@@ -300,25 +312,25 @@ class ProgramFrame extends JFrame
                                     textArea.append("SUB");
                                 }
                                 case VM252Utilities.JUMP_OPCODE-> {
-                                    textArea.append("JUMP");
-                                    textArea.append(String.valueOf(operand));
+                                    textArea.append("JUMP ");
+                                    textArea.append(String.valueOf(operand)+"\n");
                                 }
                                 case VM252Utilities.JUMP_ON_ZERO_OPCODE-> {
-                                    textArea.append("JUMP ON ZERO");
-                                    textArea.append(String.valueOf(operand));
+                                    textArea.append("JUMP ON ZERO ");
+                                    textArea.append(String.valueOf(operand)+"\n");
                                 }
                                 case VM252Utilities.JUMP_ON_POSITIVE_OPCODE-> {
                                     textArea.append("JUMP ON POS");
-                                    textArea.append(String.valueOf(operand));
+                                    textArea.append(String.valueOf(operand)+"\n");
                                 }
                                 case VM252Utilities.OUTPUT_OPCODE-> {
-                                    textArea.append("OUTPUT");
+                                    textArea.append("OUTPUT\n");
                                 }
                                 case VM252Utilities.NO_OP_OPCODE-> {
-                                    textArea.append("NOOP");
+                                    textArea.append("NOOP\n");
                                 }
                                 case VM252Utilities.STOP_OPCODE-> {
-                                    textArea.append("STOP");
+                                    textArea.append("STOP\n");
                                 }
                             }
             }
@@ -551,6 +563,7 @@ class ProgramFrame extends JFrame
           @Override
           public void actionPerformed(ActionEvent event)
           {
+              f.setVisible(true);
               int counter = 0;
               for(int j =0;j< memory.length;++j)
               {
@@ -578,8 +591,10 @@ class ProgramFrame extends JFrame
                   {
                       textArea.append(" 0"+thing);
                   }
-               counter +=1;    
+               counter +=1;     
               }
+              textArea.append("\n");
+              
           }
       }
       private static short fetchIntegerValue(byte [] memory, short address)
@@ -620,6 +635,7 @@ class ProgramFrame extends JFrame
            @Override
            public void actionPerformed(ActionEvent event)
            {
+               f.setVisible(true);
                if (program != null) {
 
                 //
@@ -799,7 +815,6 @@ class ProgramFrame extends JFrame
                                 case VM252Utilities.NO_OP_OPCODE -> {
 
                                     ; // do nothing
-
                                     }
 
                                 case VM252Utilities.STOP_OPCODE -> {
@@ -835,23 +850,179 @@ class ProgramFrame extends JFrame
       {
           textArea.setEditable(false);
           JScrollPane scrollPane = new JScrollPane(textArea);
-          f.setSize(400,400);
-          if (f.isVisible())
-            {
-                textArea.setText("");
-                f.dispose();
-            }
-          else{
+          f.setSize(700,400);
+          f.setLocation(400, 0);
+          if ( ! f.isVisible())
+          {
+            f.setVisible(true);
+            f.add(scrollPane);
+          }   
+      }
+      private class helpAction implements ActionListener
+      {
+          @Override
+           public void actionPerformed(ActionEvent event)
+          {
               f.setVisible(true);
-              f.add(scrollPane);
+              textArea.append("Aa: Displays a popup window that asks for user input and sets that input to the accumulator.\n" +
+"\n" +
+"Ap: Displays a popup window that asks for user input and alters the contents of the program counter to memory.\n" +
+"\n" +
+"Amb H: Displays a popup window that asks for two input values, one for the position and the other for the hex byte value that will be stored in that position. \n" +
+"\n" +
+"Amb S: Displays a popup window that asks for two input values, one for the position and the other for the hex byte value that will be stored in that position. \n" +
+"\n" +
+"Ba: Places a breakpoint at the point of memory.\n" +
+"\n" +
+"Z: Resets the program counter to zero. \n" +
+"\n" +
+"Mb: Opens up a popup window and displays machine memory as bytes in hex value. \n" +
+"\n" +
+"N: Executes the next line of the program and opens corresponding input/output windows as needed. \n" +
+"\n" +
+"Ob: Opens a display window showing the memory of the machine as byte hex values. \n" +
+"\n" +
+"Od: Opens a display window that shows the memory of the machine as two-byte hex values. \n" +
+"\n" +
+"S: Opens a display window that shows the pertinent information about the machine state. \n" +
+"\n" +
+"R: Runs the program until the end or error, performing the appropriate input/output with a different window as needed.\n" +
+"\n" +
+"Help: Opens a display window that describes the actions of each button and the functions they represent.\n" +
+"\n" +
+"Quit: Closes the window and terminates the program as it is clicked. \n" +
+"\n" +
+"Change the current file: Opens a file select window in which the user is able to choose a new file. \n" 
+                      );
+          }
+      }
+      private class oBAction implements ActionListener
+      {
+          @Override
+           public void actionPerformed(ActionEvent event)
+          {
+              f.setVisible(true);
+              int counter = 0;
+              for(int j =0;j< program.length;++j)
+              {
+                  if (counter%20==0)
+                  {
+                      if (counter == 0)
+                        {
+                            textArea.append("\n [ADDR       "+counter+"]");
+                        }
+                      else if (counter <100)
+                      {
+                      textArea.append("\n [ADDR     "+counter+"]");
+                      }
+                      else
+                      {
+                        textArea.append("\n [ADDR   "+counter+"]");
+                      }
+                  }
+                  
+                  var thing = (Integer.toHexString(memory[j]));
+                  if(thing.length()>1)
+                      {textArea.append(" "+thing.substring(thing.length()-2));
+                  }
+                  else
+                  {
+                      textArea.append(" 0"+thing);
+                  }
+               counter +=1;     
+              }
+              textArea.append("\n");
+              
           }
           
+      }
+      
+      private class odAction implements ActionListener
+      {
+          @Override
+          public void actionPerformed(ActionEvent event)
+          {
+              f.setVisible(true);
+              int counter = 0;
+              for(int j =0;j< program.length;++j)
+              {
+                  if (counter%20==0)
+                  {
+                      if (counter == 0)
+                        {
+                            textArea.append("\n [ADDR       "+counter+"]");
+                        }
+                      else if (counter <100)
+                      {
+                      textArea.append("\n [ADDR     "+counter+"]");
+                      }
+                      else
+                      {
+                        textArea.append("\n [ADDR   "+counter+"]");
+                      }
+                  }
+                  
+                  var thing = (Integer.toHexString(memory[j]));
+                  if(thing.length()>1)
+                  {
+                      if ((counter+1)%2 ==0)
+                      {textArea.append(thing.substring(thing.length()-2));        
+                      }
+                      else
+                      {
+                       textArea.append(" "+thing.substring(thing.length()-2));
+                      }
+                  }
+                  else
+                  {
+                      if ((counter+1)%2 ==0)
+                      {textArea.append("0"+thing);        
+                      }
+                      else
+                      {
+                       textArea.append(" 0"+thing);
+                      }
+                  }
+               counter +=1;     
+              }
+              textArea.append("\n");
+              
           
-          
-}
+      }
+      }
+      private class amb_hAction implements ActionListener
+      {    
+           @Override
+           public void actionPerformed(ActionEvent event)
+           {
+               short spot = ((short) intInput("What spot would you like to change?"));
+               try{
+               memory[spot] = (window("What value would you like to fill that spot?"));
+               }
+               catch(Exception e){
+               memory[spot] = (window("Please enter a new value, your previous input wasn't accepted."));
+               }
+               }
+      }
+      private class amb_sAction implements ActionListener
+      {    
+           @Override
+           public void actionPerformed(ActionEvent event)
+           {
+               short spot = ((short) intInput("What spot would you like to change?"));
+               try{
+               memory[spot] = (window("What value would you like to fill that spot?"));
+               }
+               catch(Exception e){
+               memory[spot] = (window("Please enter a new value, your previous input wasn't accepted."));
+               }
+               }
+                       }
+      
       public JFrame f = new JFrame();
-         
 }
+
+
 
 
 
